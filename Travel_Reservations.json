@@ -1,0 +1,159 @@
+{
+  "name": "Travel Reservations",
+  "nodes": [
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://test.api.amadeus.com/v2/shopping/flight-offers",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer ****************"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"currencyCode\": \"USD\",\n  \"originDestinations\": [\n    {\n      \"id\": \"1\",\n      \"originLocationCode\": \"NYC\",\n      \"destinationLocationCode\": \"BOM\",\n      \"departureDateTimeRange\": {\n        \"date\": \"2025-07-01\",\n        \"time\": \"11:00:00\"\n      }\n    }\n  ],\n  \"travelers\": [\n    {\n      \"id\": \"1\",\n      \"travelerType\": \"ADULT\"\n    }\n  ],\n  \"sources\": [\n    \"GDS\"\n  ],\n  \"searchCriteria\": {\n    \"maxFlightOffers\": 2,\n    \"flightFilters\": {\n      \"cabinRestrictions\": [\n        {\n          \"cabin\": \"BUSINESS\",\n          \"coverage\": \"MOST_SEGMENTS\",\n          \"originDestinationIds\": [\n            \"1\"\n          ]\n        }\n      ]\n    }\n  }\n}",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        480,
+        340
+      ],
+      "id": "0114e07f-dead-4c72-a991-51b89dfc4673",
+      "name": "HTTP flight Request"
+    },
+    {
+      "parameters": {
+        "url": "https://test.api.amadeus.com/v1/reference-data/locations/hotels/by-city",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "cityCode",
+              "value": "DEL"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer *********************"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        700,
+        340
+      ],
+      "id": "437ed6d9-55d4-42e3-8172-52f2f88aa8af",
+      "name": "HTTP Hotel Search"
+    },
+    {
+      "parameters": {
+        "content": "Search for Hotels and flight tickets and return top 3 responses. It uses Amadeus API to fetch information",
+        "height": 280,
+        "width": 540
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        400,
+        260
+      ],
+      "id": "662d0c74-2e68-433b-bbd8-963540e54986",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "id": "c055762a-8fe7-4141-a639-df2372f30060",
+      "typeVersion": 1.1,
+      "name": "Invoked by Excecutive assistant workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        260,
+        340
+      ]
+    },
+    {
+      "parameters": {
+        "content": "Hotel and Flight search module",
+        "height": 100
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        300,
+        140
+      ],
+      "id": "668f526d-ca28-4e1e-a3d4-e2f8c29ac4d3",
+      "name": "Sticky Note1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "HTTP flight Request": {
+      "main": [
+        [
+          {
+            "node": "HTTP Hotel Search",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Invoked by Excecutive assistant workflow": {
+      "main": [
+        [
+          {
+            "node": "HTTP flight Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "e05c444f-8bac-4c47-a60b-8db763b9ee2a",
+  "meta": {
+    "instanceId": "8260cd7baf887cbb4d922aa0c31e42997f234ffe4dd501960f5910f0616d39b5"
+  },
+  "id": "ueskIfC0FctCj7em",
+  "tags": []
+}

@@ -1,0 +1,403 @@
+{
+  "name": "Executive assistant",
+  "nodes": [
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        400,
+        -380
+      ],
+      "id": "259c0424-b437-4719-90f0-b00d2a32d500",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "xyz@gmail.com",
+          "mode": "list",
+          "cachedResultName": "xyz@gmail.com"
+        },
+        "start": "={{ $('Start Date Time').item.json.StartDate }}",
+        "end": "={{ $json.EndDateTime }}",
+        "additionalFields": {
+          "attendees": [
+            "={{ $('Edit Fields').item.json.Email }}"
+          ],
+          "description": "=Discussion on {{ $('Edit Fields').item.json.Topic }}",
+          "location": "Location: https://us05web.zoom.us/j/5748574541?pwd=o5NeHFRBq78mqDKnac59gcS0boARsR.1&omn=85873928688",
+          "summary": "=Discussion on {{ $('Edit Fields').item.json.Topic }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        1060,
+        -380
+      ],
+      "id": "60d27afb-2f7a-4518-9145-56486de88851",
+      "name": "Google Calendar",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "**********",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a helpful research analyst. You can get information about any topic and do research to create a small snyopsis on the topipc whcih the user can use to express his opinion. Keep the synopis short and jot down any negative side of the topic being researched. Give me a short summary and 3 talking points about\nTopic:  {{ $('Edit Fields').item.json.Topic }}\n\nOnly provide researched part in the output.\nAlso create summary of meeting details from following calander event:\nA meeting has been scheduled for: {{ $json.start.dateTime }}\nHere are the details:\n------------------------------\n\"Title\": {{ $json.description }}\n\"Created by\": {{ $json.creator.email }}\n\"Start Time\": {{ $json.start.dateTime }}\n\"Topic\": {{ $('Edit Fields').item.json.Topic}}\n\"Location\": {{ $json.location }}\n\"Attendees\": {{ $json.attendees[0].email }}",
+        "options": {
+          "systemMessage": "You are a helpful assistant"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.8,
+      "position": [
+        1220,
+        -560
+      ],
+      "id": "4a47aac4-0a2f-4f1d-af52-475356a749fe",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "57301f36-233d-4de9-acbf-72dd65c433a9",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -200,
+        -380
+      ],
+      "id": "995ecc5a-9704-4351-a012-cf52eccbd887",
+      "name": "Webhook",
+      "webhookId": "57301f36-233d-4de9-acbf-72dd65c433a9"
+    },
+    {
+      "parameters": {
+        "sendTo": "xyz@hotmail.com",
+        "subject": "=Meeting with {{ $('Edit Fields').item.json.name }} regarding {{ $('Edit Fields').item.json.Topic }} ",
+        "emailType": "text",
+        "message": "=Here is your summary and details:\n------------------------------------{{ $('AI Agent').item.json.output }}\n----------Your Itenary summary------\n{{ $json.body.data[0] }}\n{{ $json.body.data[1] }}\n{{ $json.body.data[2] }}\n{{ $json.body.data[3] }}\n\n",
+        "options": {
+          "senderName": "Vikas R"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1560,
+        -240
+      ],
+      "id": "71938ef0-e7ef-4136-bbae-d2e91d72eedf",
+      "name": "Gmail",
+      "webhookId": "237cf610-d50c-4268-a02b-6625a9cbffe2",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "**********",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "ueskIfC0FctCj7em",
+          "mode": "list",
+          "cachedResultName": "Travel Reservations"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1600,
+        -560
+      ],
+      "id": "32f056b0-36e1-42c5-9c0a-34402771f201",
+      "name": "Execute Workflow"
+    },
+    {
+      "parameters": {
+        "content": "Setting up to create meeting via Google calander",
+        "height": 500,
+        "width": 1080
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -100,
+        -480
+      ],
+      "id": "6a4ab076-321a-4b08-ad16-5ddebfcb4cd0",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a helpful assistant. User will provide a message like \"Schedule a meeting with Shannon Barbara on 23rd May 2025 at 11:30 am on postgressql vs  elasticsearch topic\". Convert the given command into a JSON message with following fields:\n{\n  \"name\",\n  \"date\",\n  \"time\",\n  \"topic\",\n   \"Email\" ,\n   \"FlightDate\",\n   \"CityFrom\",\n   \"cityTo\",\n   \"HotelCityCode\"\n}\n\nIf you can not find a specific field from the message, stop the workflow and send a message mentioning the required field.\n\nThe actual mesage is: {{ $json.body.Q1 }}\nConvert dates to YYYY-MM-DD format and time to \"hh:mi:ss.ssZ\" format wherever applicable",
+        "options": {
+          "systemMessage": "You are a helpful assistant"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.8,
+      "position": [
+        20,
+        -380
+      ],
+      "id": "42797079-f30a-40e7-be99-1f8bd36a8a06",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "claude-3-opus-20240229",
+          "mode": "list",
+          "cachedResultName": "Claude 3 Opus"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        40,
+        -120
+      ],
+      "id": "a91a8bc5-97b4-4266-a531-39757ed089fc",
+      "name": "Anthropic Chat Model1",
+      "credentials": {
+        "anthropicApi": {
+          "id": "************",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "addToDate",
+        "magnitude": "={{ $('Edit Fields').item.json.date }} \n{{ $('Edit Fields').item.json.time }}",
+        "timeUnit": "minutes",
+        "duration": 30,
+        "outputFieldName": "EndDateTime",
+        "options": {
+          "includeInputFields": false
+        }
+      },
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 2,
+      "position": [
+        840,
+        -380
+      ],
+      "id": "85948c43-5849-4eb6-a5e6-30090b669040",
+      "name": "Meeting End Time"
+    },
+    {
+      "parameters": {
+        "operation": "addToDate",
+        "magnitude": "={{ $json.date }}T{{ $json.time }}",
+        "timeUnit": "seconds",
+        "outputFieldName": "StartDate",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 2,
+      "position": [
+        620,
+        -380
+      ],
+      "id": "50c93a05-07d2-4a19-b558-4d45811c2812",
+      "name": "Start Date Time"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-1.5-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1240,
+        -260
+      ],
+      "id": "3e30f919-5b85-4feb-aa39-ca36871e703e",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "***********",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "Schedule the meeting and send information to all participants",
+        "height": 540,
+        "width": 780
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1020,
+        -600
+      ],
+      "id": "6b1ce85e-627a-4104-82f6-c503d60d770b",
+      "name": "Sticky Note1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Start Date Time",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Calendar": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Execute Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail": {
+      "main": [
+        []
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Meeting End Time": {
+      "main": [
+        [
+          {
+            "node": "Google Calendar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start Date Time": {
+      "main": [
+        [
+          {
+            "node": "Meeting End Time",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Workflow": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Asia/Kolkata",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "eca38558-e4d1-48c8-9eb6-066453b3fbe8",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "8260cd7baf887cbb4d922aa0c31e42997f234ffe4dd501960f5910f0616d39b5"
+  },
+  "id": "jx5s5xurBp8V47EF",
+  "tags": []
+}
